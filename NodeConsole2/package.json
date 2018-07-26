@@ -2,13 +2,15 @@
   "name": "node-console2",
   "version": "0.0.0",
   "description": "NodeConsole2",
-  "main": "app.js",
+  "main": "game.js",
   "author": {
     "name": "장원석"
   },
   "dependencies": {
+    "async": "^2.6.1",
     "express": "^4.16.3",
-    "socket.io": "^0.9.19",
+    "socket.io": "^0.9.16",
+    "tedious": "^2.6.3",
     "websocket": "^1.0.26"
   }
 }
