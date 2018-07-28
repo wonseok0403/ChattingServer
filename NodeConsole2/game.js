@@ -6,7 +6,7 @@ var server = http.createServer(function (req, res){
     // http create for client accessing
 });
 //server.listen(52724);               // server has to listen port number 52724 (52723 is for app which is chatting with others)
-server.listen(process.env.port);
+server.listen(52724);
 var sock = io.listen(server);       // 'socket' has parameter named 'socket'. so I changed it to sock
 var Users = [];                     // cleints
 var config = {                      // config for accessing Azure SQL.
@@ -72,8 +72,24 @@ var num = 0;
 sock.on("connection", function (datas) {
     console.log("One user is comming!");
     var _datas = datas;
-
-
+    datas.on("Logout", function (data) {
+        var DisconnectedJson = JSON.parse(JSON.stringify(data));
+        var DisconnectedMail = data;//DisconnectedJson['mail'];
+        console.log(" Logout : " + DisconnectedMail);
+        for (var i = 0; i < Users.length; i++) {
+            if (Users[i][0] == DisconnectedMail) {
+                console.log("Memory disallocation start");
+                Users.splice(i, 1);
+                // delete makes empty item. don't use
+                // delete Users[i];
+                console.log(Users);
+            }
+        }
+        console.log(JSON.stringify(data));
+    });
+    datas.on("disconnect", function (data) {
+        console.log("close!");
+    });
 
     datas.on("SMSG", function (data) {
         console.log("Button is cliked");
@@ -103,10 +119,15 @@ sock.on("connection", function (datas) {
         // New location is added. I will send message for all member's location in 'json'.
         // Users = [ [x,y,z,name], [x1,y1,z1,name1], [x2,y2.z2,name2] .. ] 
     });
-    datas.on("RequestLocation", function (data) {
-        num++;
-           datas.emit("Locations", JSON.stringify(Users));
-    });
+    /*datas.on("RequestLocation", function (data) {
+          datas.emit("Locations", JSON.stringify(Users));
+    });*/
+    setInterval(function () {
+        if (Users.length > 1) {
+            var tmp = JSON.stringify(Users);
+            datas.broadcast.emit("Locations", tmp);
+        }
+    }, 300);
 
     datas.on("sMsg", function (data) { // Decide button clicked
         console.log("sMsaag");
